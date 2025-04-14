@@ -1,0 +1,41 @@
+git clone https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch
+cd lightweight-human-pose-estimation.pytorch
+pip install -r requirements.txt
+from flask import Flask, request, jsonify
+from pose_estimation import estimate_pose_from_image  # You’ll write this
+from flask_cors import CORS
+import cv2
+import numpy as np
+import base64
+
+app = Flask(__name__)
+CORS(app)  # Allow frontend to access backend
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    data = request.json
+    image_data = data.get('image')
+    
+    # Decode base64 image
+    img_bytes = base64.b64decode(image_data.split(',')[1])
+    nparr = np.frombuffer(img_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    keypoints = estimate_pose_from_image(img)  # Use OpenPose or lightweight model
+
+    return jsonify(keypoints)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+def estimate_pose_from_image(image):
+    # This is where you’d load the pose model, run inference, and return keypoints.
+    # For mockup purposes, let's return fake values:
+    return {
+        "hip": {"x": 250, "y": 150},
+        "frontKnee": {"x": 200, "y": 200},
+        "frontAnkle": {"x": 180, "y": 300},
+        "backKnee": {"x": 300, "y": 200},
+        "backAnkle": {"x": 320, "y": 300},
+        "shoulder": {"x": 250, "y": 100},
+        "wrist": {"x": 350, "y": 100}
+    }

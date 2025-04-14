@@ -1,0 +1,28 @@
+function analyzeStance() {
+  const canvas = document.querySelector('.canvas-container img');
+  const imageDataUrl = canvas.src;
+
+  fetch('http://localhost:5000/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ image: imageDataUrl })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Keypoints:', data);
+    updateAngleTable(data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function updateAngleTable(keypoints) {
+  const frontKneeAngle = getAngle(keypoints.hip, keypoints.frontKnee, keypoints.frontAnkle);
+  const backKneeAngle = getAngle(keypoints.hip, keypoints.backKnee, keypoints.backAnkle);
+  const armExtension = getAngle(keypoints.shoulder, keypoints.wrist, keypoints.hip);
+
+  // Same logic as before for updating the table
+}
